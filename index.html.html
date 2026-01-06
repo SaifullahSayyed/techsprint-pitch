@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumGuard AI - Team Chai GPT</title>
+    <style>
+        /* CORE VARIABLES & RESET */
+        :root {
+            --bg-color: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --primary: #00f3ff; /* Cyan */
+            --secondary: #bc13fe; /* Purple */
+            --accent: #2d2d2d;
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-code: 'Fira Code', 'Courier New', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.08) 0%, transparent 20%);
+        }
+
+        /* SLIDE CONTAINER */
+        #slide-deck {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            transform: scale(0.95) translateY(20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+            z-index: 2;
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        h2 {
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            color: var(--text-main);
+        }
+
+        h3 {
+            font-size: 2rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            font-family: var(--font-code);
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            max-width: 900px;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .highlight { color: var(--primary); font-weight: bold; }
+        .highlight-purple { color: var(--secondary); font-weight: bold; }
+        
+        /* SPECIFIC ELEMENTS */
+        .big-stat {
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--secondary);
+            text-shadow: 0 0 30px rgba(188, 19, 254, 0.5);
+            margin: 1rem 0;
+        }
+
+        .code-block {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 12px;
+            font-family: var(--font-code);
+            text-align: left;
+            font-size: 1.2rem;
+            color: #d4d4d4;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            text-align: left;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        /* TECH STACK ICONS */
+        .tech-pill {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50px;
+            margin: 5px;
+            font-family: var(--font-code);
+            font-size: 1rem;
+            background: rgba(0, 243, 255, 0.1);
+        }
+
+        /* PROGRESS BAR */
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* FOOTER INFO */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.3);
+            z-index: 100;
+        }
+
+        .speaker-tag {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-left: 3px solid var(--primary);
+            z-index: 100;
+        }
+
+        /* UTILS */
+        .hidden { display: none; }
+        .red-alert { color: #ff3333; text-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+        .blink { animation: blinking 2s infinite; }
+        
+        @keyframes blinking {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="speaker-tag" id="speaker-name">SPEAKER: SAIF</div>
+    <div class="footer">Team Chai GPT /// TechSprint 2025</div>
+    <div class="progress-container"><div class="progress-bar" id="progress"></div></div>
+
+    <div id="slide-deck">
+
+        <div class="slide active" data-speaker="SAIF">
+            <h3>TEAM CHAI GPT PRESENTS</h3>
+            <h1>QuantumGuard <span style="color:var(--primary)">AI</span></h1>
+            <p style="font-size: 1.8rem; margin-top: 1rem;">Automated Defense Against the <span class="highlight-purple">Quantum Apocalypse</span></p>
+            <div style="margin-top: 3rem; display: flex; gap: 1rem; justify-content: center;">
+                <span class="tech-pill">Saif</span>
+                <span class="tech-pill">Maseera</span>
+                <span class="tech-pill">Muskan</span>
+                <span class="tech-pill">Khadija</span>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <h2 class="red-alert blink">THE THREAT IS ALREADY HERE</h2>
+            <h1>"Harvest Now, <br>Decrypt Later"</h1>
+            <p>Hackers are stealing encrypted data <strong>today</strong>.<br>Waiting for quantum computers to unlock it <strong>tomorrow</strong>.</p>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <div class="grid-layout">
+                <div>
+                    <h1 style="font-size: 6rem; color: var(--primary);">Y2Q</h1>
+                    <h3>Year to Quantum</h3>
+                </div>
+                <div>
+                    <div class="code-block">
+                        <span style="color: #ff3333;">>> RSA-2048: CRACKED</span><br>
+                        <span style="color: #ff3333;">>> ECC: OBSOLETE</span><br>
+                        <span style="color: #ff3333;">>> GLOBAL TRAFFIC: EXPOSED</span>
+                    </div>
+                    <p style="margin-top: 2rem;">Shor's Algorithm will break the internet's foundation.<br>We are running on <strong class="highlight">Quantum Debt</strong>.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="MASEERA">
+            <h3>THE TECHNICAL GAP</h3>
+            <h2>The Solution Exists.<br>The Implementation is <span class="red-alert">Impossible.</span></h2>
+            <div class="grid-layout" style="margin-top: 2rem;">
+                <div style="opacity: 0.6;">
+                    <h3>Legacy Code</h3>
+                    <p>Billions of lines of Node.js & Python using weak MD5 & SHA-1.</p>
+                    <div class="code-block" style="border-color: #ff3333;">crypto.createHash('md5')</div>
+                </div>
+                <div>
+                    <h3>NIST Standards (2024)</h3>
+                    <p>Complex Lattice-based Math.</p>
+                    <div class="code-block" style="border-color: var(--primary);">
+                        CRYSTALS-Kyber<br>
+                        CRYSTALS-Dilithium
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="MUSKAN">
+            <h3>INTRODUCING</h3>
+            <h1>QuantumGuard <span style="color:var(--primary)">AI</span></h1>
+            <p>An intelligent security engine that<br>
+            <span class="highlight">Detects</span>, 
+            <span class="highlight">Analyzes</span>, and 
+            <span class="highlight-purple">Remediates</span>.</p>
+            <p style="font-size: 1.2rem; margin-top: 2rem; opacity: 0.8;">Powered by Gemini 2.0 Flash</p>
+        </div>
+
+        <div class="slide" data-speaker="MUSKAN">
+            <h3>SYSTEM ARCHITECTURE</h3>
+            <div class="grid-layout">
+                <div style="text-align: center;">
+                    <div class="code-block" style="text-align: center; font-size: 1rem;">
+                        INPUT CODE<br>↓<br>
+                        <strong class="highlight">AST PARSER</strong><br>
+                        (Structure Analysis)<br>↓<br>
+                        <strong class="highlight-purple">GEMINI 2.0 FLASH</strong><br>
+                        (Multi-Agent Pipeline)<br>↓<br>
+                        NIST PATCH
+                    </div>
+                </div>
+                <div>
+                    <h2>Deep Tech Stack</h2>
+                    <p>We don't just read text. We parse the <strong class="highlight">Abstract Syntax Tree</strong>.</p>
+                    <div style="margin-top: 2rem;">
+                        <span class="tech-pill">React + ShadCN</span>
+                        <span class="tech-pill">Node.js</span>
+                        <span class="tech-pill">Gemini 2.0</span>
+                        <span class="tech-pill">Recharts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="KHADIJA">
+            <h1>LIVE DEMO</h1>
+            <p>From Vulnerable to Quantum-Proof in <span class="highlight">Seconds</span>.</p>
+            <div style="margin-top: 3rem;">
+                <div class="blink" style="font-family: var(--font-code); color: var(--primary);">>> INITIALIZING SCANNER...</div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <h3>MARKET IMPACT</h3>
+            <div class="big-stat">$3 Billion</div>
+            <p>Projected Post-Quantum Cryptography Market by 2028.</p>
+            <div style="margin-top: 2rem; display: flex; gap: 2rem; justify-content: center; opacity: 0.7;">
+                <span>🏛️ Government Compliance</span>
+                <span>🏦 Banking Security</span>
+                <span>🏥 Healthcare Privacy</span>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <h1>SECURE THE FUTURE.</h1>
+            <p>Don't let your code become history.</p>
+            <h2 style="margin-top: 3rem; font-size: 2.5rem; color: var(--primary);">Thank You</h2>
+            <p style="font-size: 1rem; margin-top: 1rem;">Team Chai GPT</p>
+        </div>
+
+    </div>
+
+    <script>
+        // PRESENTATION LOGIC
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress');
+        const speakerTag = document.getElementById('speaker-name');
+        let currentSlide = 0;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                    // Update Speaker Name
+                    speakerTag.innerText = "SPEAKER: " + slide.getAttribute('data-speaker');
+                }
+            });
+            // Update Progress Bar
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        document.addEventListener('click', (e) => {
+            // Click right side to go next, left side to go back
+            if (e.clientX < window.innerWidth / 3) {
+                prevSlide();
+            } else {
+                nextSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
