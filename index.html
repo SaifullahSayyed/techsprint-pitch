@@ -6,276 +6,277 @@
     <title>QuantumGuard AI - Chai GPT</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- MODERN VARIABLES --- */
+        /* --- CORE VISUALS --- */
         :root {
-            --bg-color: #030014; /* Deep Midnight */
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --accent-primary: #6366f1; /* Indigo */
-            --accent-secondary: #ec4899; /* Pink */
-            --accent-tertiary: #06b6d4; /* Cyan */
-            --text-main: #ffffff;
-            --text-muted: #94a3b8;
-            --font-head: 'Space Grotesk', sans-serif;
+            --bg-deep: #030305;
+            --neon-cyan: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-red: #ff2a2a;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --font-head: 'Orbitron', sans-serif;
             --font-body: 'Inter', sans-serif;
+            --font-code: 'Fira Code', monospace;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-deep);
+            color: white;
             font-family: var(--font-body);
             overflow: hidden;
             height: 100vh;
             width: 100vw;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        /* --- AMBIENT BACKGROUND --- */
-        .ambient-light {
+        /* --- BACKGROUND PARTICLES CANVAS --- */
+        #canvas-bg {
             position: absolute;
+            top: 0; left: 0;
             width: 100%; height: 100%;
-            overflow: hidden;
             z-index: 0;
         }
-        .blob {
-            position: absolute;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: move 20s infinite alternate;
-        }
-        .blob-1 {
-            top: -10%; left: -10%; width: 50vw; height: 50vw;
-            background: var(--accent-primary);
-        }
-        .blob-2 {
-            bottom: -10%; right: -10%; width: 50vw; height: 50vw;
-            background: var(--accent-secondary);
-            animation-delay: -5s;
-        }
-        .blob-3 {
-            bottom: 20%; left: 20%; width: 30vw; height: 30vw;
-            background: var(--accent-tertiary);
-            opacity: 0.2;
-            animation-delay: -10s;
-        }
 
-        @keyframes move {
-            from { transform: translate(0, 0) scale(1); }
-            to { transform: translate(20px, -20px) scale(1.1); }
-        }
-
-        /* --- HEADER / FOOTER UI --- */
-        .ui-header {
+        /* --- HUD OVERLAYS --- */
+        .hud-top {
             position: absolute;
-            top: 40px; left: 50px;
-            font-family: var(--font-head);
-            font-weight: 700;
-            letter-spacing: 1px;
+            top: 30px; left: 40px;
+            font-family: var(--font-code);
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            z-index: 100;
             display: flex;
             align-items: center;
-            gap: 15px;
-            z-index: 50;
+            gap: 10px;
         }
-        .speaker-badge {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--accent-tertiary);
+        .hud-blink {
+            width: 8px; height: 8px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
         }
-        
-        .ui-footer {
+        .hud-bottom {
             position: absolute;
-            bottom: 40px; right: 50px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            z-index: 50;
+            bottom: 30px; right: 40px;
+            font-family: var(--font-head);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            z-index: 100;
         }
-
         .progress-bar {
             position: absolute;
-            top: 0; left: 0; width: 0%; height: 4px;
-            background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-secondary));
-            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-            z-index: 60;
+            bottom: 0; left: 0; height: 3px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--neon-cyan);
+            z-index: 100;
         }
 
-        /* --- SLIDE CONTAINER --- */
+        /* --- SLIDE STYLES --- */
         #deck {
             position: relative;
             width: 100%; height: 100%;
             z-index: 10;
+            perspective: 1000px;
         }
 
         .slide {
             position: absolute;
-            inset: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            visibility: hidden;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(30px) scale(0.98);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(1.1) blur(10px);
         }
 
         .slide.active {
             opacity: 1;
-            pointer-events: all;
-            transform: translateY(0) scale(1);
+            visibility: visible;
+            transform: scale(1) blur(0px);
         }
 
-        /* --- TYPOGRAPHY --- */
+        /* --- TYPOGRAPHY & EFFECTS --- */
         h1 {
             font-family: var(--font-head);
-            font-size: 4.5rem;
-            font-weight: 700;
+            font-size: 5rem;
+            font-weight: 900;
             line-height: 1.1;
-            margin-bottom: 1.5rem;
-            letter-spacing: -1.5px;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #fff 30%, #a5b4fc 100%);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            background: linear-gradient(180deg, #fff, #a5a5a5);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        
-        .accent-text { color: var(--accent-tertiary); }
-        .danger-text { color: #f43f5e; } /* Rose-500 */
-        .purple-text { color: #d8b4fe; }
+
+        .neon-text {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px var(--neon-cyan);
+            -webkit-text-fill-color: var(--neon-cyan);
+        }
+
+        .purple-text {
+            color: var(--neon-purple);
+            text-shadow: 0 0 20px var(--neon-purple);
+            -webkit-text-fill-color: var(--neon-purple);
+        }
+
+        .danger-text {
+            color: var(--neon-red);
+            text-shadow: 0 0 20px var(--neon-red);
+            -webkit-text-fill-color: var(--neon-red);
+        }
 
         h2 {
+            font-family: var(--font-body);
+            font-weight: 300;
             font-size: 2.5rem;
-            font-weight: 400;
-            color: var(--text-main);
-            margin-bottom: 2rem;
-            max-width: 1100px;
+            color: #ccc;
+            margin-bottom: 3rem;
         }
 
         h3 {
-            font-family: var(--font-head);
-            font-size: 0.9rem;
-            text-transform: uppercase;
+            font-family: var(--font-code);
+            color: var(--neon-cyan);
             letter-spacing: 3px;
-            color: var(--text-muted);
             margin-bottom: 1rem;
+            font-size: 1rem;
         }
 
         p {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
+            color: #aaa;
+            max-width: 900px;
             line-height: 1.6;
-            color: var(--text-muted);
-            max-width: 800px;
         }
 
         /* --- COMPONENTS --- */
-        
-        /* The Bento Card */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 24px;
+        .glass-panel {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
             padding: 3rem;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: left;
         }
 
-        .grid-split {
+        .code-snippet {
+            font-family: var(--font-code);
+            background: rgba(0,0,0,0.6);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--neon-purple);
+            color: #ddd;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 3rem;
+            gap: 4rem;
+            align-items: center;
             width: 80%;
             max-width: 1400px;
-            align-items: center;
         }
 
-        .code-window {
-            background: #0f172a; /* Slate 900 */
-            border-radius: 12px;
-            padding: 1.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: #e2e8f0;
-            text-align: left;
-            border: 1px solid #1e293b;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            position: relative;
+        .big-number {
+            font-family: var(--font-head);
+            font-size: 8rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--neon-purple);
+            text-shadow: 0 0 30px rgba(188, 19, 254, 0.4);
         }
-        .dots {
-            display: flex; gap: 6px; margin-bottom: 15px;
-        }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background: #334155; }
-        .dot.red { background: #ef4444; }
-        .dot.yellow { background: #f59e0b; }
-        .dot.green { background: #22c55e; }
 
-        /* Pills */
-        .pill-group {
-            display: flex; gap: 10px; justify-content: center; margin-top: 2rem;
+        /* --- TEAM PILLS --- */
+        .team-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 2rem;
         }
         .pill {
             padding: 8px 20px;
-            border-radius: 100px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50px;
+            font-family: var(--font-code);
             font-size: 0.9rem;
-            color: var(--text-muted);
+            background: rgba(255,255,255,0.05);
+            color: #888;
         }
-        .pill.highlight {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.5);
-            color: #fff;
+        .pill.active {
+            border-color: var(--neon-cyan);
+            color: white;
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
         }
 
-        /* --- ANIMATION UTILS --- */
-        .stagger-up {
+        /* --- ANIMATIONS --- */
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.7); }
+            70% { opacity: 0.5; box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); }
+            100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating { animation: float 4s ease-in-out infinite; }
+        
+        /* Staggered text entry */
+        .slide.active .reveal {
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease-out;
+            animation: slideUp 0.8s forwards;
         }
-        .slide.active .stagger-up { opacity: 1; transform: translateY(0); }
-        .d1 { transition-delay: 0.1s; }
-        .d2 { transition-delay: 0.2s; }
-        .d3 { transition-delay: 0.3s; }
-        .d4 { transition-delay: 0.4s; }
+        .slide.active .d-1 { animation-delay: 0.1s; }
+        .slide.active .d-2 { animation-delay: 0.3s; }
+        .slide.active .d-3 { animation-delay: 0.5s; }
+        .slide.active .d-4 { animation-delay: 0.7s; }
 
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glitch-wrapper { position: relative; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div class="ambient-light">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <canvas id="canvas-bg"></canvas>
 
-    <div class="progress-bar" id="progress"></div>
-    <div class="ui-header">
-        <span>Team Chai GPT</span>
-        <div class="speaker-badge" id="speaker-badge">SPEAKER: SAIF</div>
+    <div class="hud-top">
+        <div class="hud-blink"></div>
+        SPEAKER: <span id="speaker-name" style="color: white; font-weight: 700;">SAIF</span>
     </div>
-    <div class="ui-footer">TechSprint 2025 // Top 10 Finals</div>
+    <div class="hud-bottom">TEAM CHAI GPT // TECHSPRINT FINAL</div>
+    <div class="progress-bar" id="progress"></div>
 
     <div id="deck">
 
         <div class="slide active" data-speaker="SAIF">
-            <h3 class="stagger-up d1">DEFENDING THE FUTURE</h3>
-            <h1 class="stagger-up d2 gradient-text">QuantumGuard AI</h1>
-            <p class="stagger-up d3">Automated Defense Against the <span class="purple-text">Quantum Apocalypse</span></p>
-            
-            <div class="pill-group stagger-up d4">
-                <div class="pill highlight">Saif</div>
+            <h3 class="reveal d-1">TEAM CHAI GPT PRESENTS</h3>
+            <h1 class="reveal d-2 floating">QUANTUM<span class="neon-text">GUARD</span> AI</h1>
+            <p class="reveal d-3">Automated Defense Against the <span class="purple-text">Quantum Apocalypse</span></p>
+            <div class="team-row reveal d-4">
+                <div class="pill active">Saif</div>
                 <div class="pill">Maseera</div>
                 <div class="pill">Muskan</div>
                 <div class="pill">Khadija</div>
@@ -283,132 +284,130 @@
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <div class="card stagger-up d2" style="border-left: 4px solid #f43f5e;">
-                <h3 class="danger-text" style="margin-bottom: 0;">CRITICAL VULNERABILITY</h3>
-                <h1 style="font-size: 3.5rem; margin: 20px 0;">"Harvest Now,<br>Decrypt Later"</h1>
-                <p style="margin: 0 auto;">Hackers are stealing encrypted data <strong>today</strong>.<br>Waiting for quantum computers to unlock it <strong>tomorrow</strong>.</p>
-            </div>
+            <h3 class="reveal d-1 danger-text">CRITICAL THREAT DETECTED</h3>
+            <h1 class="reveal d-2">"HARVEST NOW,<br><span class="danger-text">DECRYPT LATER"</span></h1>
+            <p class="reveal d-3" style="font-size: 1.6rem; color: white;">
+                Hackers are stealing data <strong>today</strong>.<br>
+                Waiting for Quantum Computers to unlock it <strong>tomorrow</strong>.
+            </p>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <div class="grid-split">
-                <div style="text-align: right;" class="stagger-up d1">
-                    <h1 style="font-size: 8rem; line-height: 1;" class="gradient-text">Y2Q</h1>
-                    <h3>Year to Quantum</h3>
+            <div class="grid-2">
+                <div style="text-align: right;">
+                    <h1 class="reveal d-1 neon-text" style="font-size: 8rem;">Y2Q</h1>
+                    <h3 class="reveal d-2">YEAR TO QUANTUM</h3>
                 </div>
-                <div class="code-window stagger-up d2">
-                    <div class="dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-                    <span style="color: #64748b;">// Security Audit</span><br><br>
-                    > RSA-2048 .......... <span class="danger-text">CRACKED</span><br>
-                    > ECC ............... <span class="danger-text">OBSOLETE</span><br>
-                    > GLOBAL STATUS ..... <span class="danger-text">EXPOSED</span><br><br>
-                    <span style="background: #ef4444; color: black; padding: 2px 5px;">ALERT: QUANTUM DEBT DETECTED</span>
+                <div class="glass-panel reveal d-3">
+                    <div style="font-family: var(--font-code); line-height: 2;">
+                        <span class="danger-text">[X] RSA-2048</span> ... CRACKED<br>
+                        <span class="danger-text">[X] ECC</span> ............ OBSOLETE<br>
+                        <span class="danger-text">[!] STATUS</span> ....... <span class="danger-text blink">QUANTUM DEBT</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="MASEERA">
-            <h3 class="stagger-up d1">THE TECHNICAL GAP</h3>
-            <h2 class="stagger-up d2">The Standard Exists.<br>The Implementation is <span class="danger-text">Impossible.</span></h2>
+            <h3 class="reveal d-1">THE IMPLEMENTATION GAP</h3>
+            <h2 class="reveal d-2">The Standard Exists.<br>The Migration is <span class="danger-text">Impossible.</span></h2>
             
-            <div class="grid-split stagger-up d3" style="margin-top: 2rem;">
-                <div class="card" style="padding: 2rem; opacity: 0.6;">
+            <div class="grid-2 reveal d-3">
+                <div class="glass-panel" style="border-left: 4px solid #555;">
                     <h3>LEGACY CODE</h3>
-                    <div style="font-family: monospace; color: #94a3b8;">crypto.createHash('<span class="danger-text">md5</span>')</div>
+                    <div class="code-snippet">crypto.createHash('<span class="danger-text">md5</span>')</div>
                 </div>
-                <div class="card" style="padding: 2rem; border-color: var(--accent-tertiary);">
-                    <h3 class="accent-text">NIST 2024 (PQC)</h3>
-                    <div style="font-family: monospace;">
-                        import { <span class="accent-text">Kyber512</span> } from 'pqc'<br>
-                        import { <span class="accent-text">Dilithium</span> } from 'dsa'
+                <div class="glass-panel" style="border-left: 4px solid var(--neon-cyan);">
+                    <h3 class="neon-text">NIST 2024 (PQC)</h3>
+                    <div class="code-snippet">
+                        import { <span class="neon-text">Kyber512</span> }<br>
+                        import { <span class="neon-text">Dilithium</span> }
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="MUSKAN">
-            <h3 class="stagger-up d1">INTRODUCING</h3>
-            <h1 class="stagger-up d2 gradient-text">QuantumGuard AI</h1>
-            <p class="stagger-up d3">The Intelligent Engine.</p>
-            
-            <div class="grid-split stagger-up d4" style="grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; margin-top: 40px;">
-                <div class="card" style="padding: 2rem;">
-                    <span style="font-size: 2rem;">🔍</span><br><br>
-                    <strong style="color:white;">DETECT</strong>
+            <h3 class="reveal d-1">INTRODUCING</h3>
+            <h1 class="reveal d-2">QUANTUMGUARD <span class="neon-text">AI</span></h1>
+            <div class="reveal d-3" style="display: flex; gap: 30px; margin-top: 30px;">
+                <div class="glass-panel floating" style="padding: 20px;">
+                    <span class="neon-text" style="font-size: 2rem;">DETECT</span>
                 </div>
-                <div class="card" style="padding: 2rem;">
-                    <span style="font-size: 2rem;">🧠</span><br><br>
-                    <strong style="color:white;">ANALYZE</strong>
+                <div class="glass-panel floating" style="padding: 20px; animation-delay: 0.2s;">
+                    <span class="neon-text" style="font-size: 2rem;">ANALYZE</span>
                 </div>
-                <div class="card" style="padding: 2rem; border-color: var(--accent-secondary);">
-                    <span style="font-size: 2rem;">🛡️</span><br><br>
-                    <strong class="purple-text">REMEDIATE</strong>
+                <div class="glass-panel floating" style="padding: 20px; animation-delay: 0.4s;">
+                    <span class="purple-text" style="font-size: 2rem;">REMEDIATE</span>
                 </div>
             </div>
-            <div style="margin-top: 30px; font-size: 0.9rem; opacity: 0.6;" class="stagger-up d4">Powered by Google Gemini 2.0 Flash</div>
+            <p class="reveal d-4" style="margin-top: 30px; font-family: var(--font-code);">Powered by Google Gemini 2.0 Flash</p>
         </div>
 
         <div class="slide" data-speaker="MUSKAN">
-            <h3 class="stagger-up d1">CORE ARCHITECTURE</h3>
-            <div class="grid-split stagger-up d2">
+            <h3 class="reveal d-1">DEEP TECH ENGINE</h3>
+            <div class="grid-2 reveal d-2">
                 <div style="text-align: right;">
-                    <h2 style="font-size: 2.2rem;">We parse the <span class="purple-text">AST</span>.</h2>
-                    <p style="margin-left: auto;">We don't just read code as text. We map the Abstract Syntax Tree to understand logic and context.</p>
+                    <h2>We don't just read text.<br>We parse the <span class="purple-text">AST</span>.</h2>
+                    <p style="text-align: right;">Abstract Syntax Trees provide context, eliminating false positives.</p>
                 </div>
-                <div class="code-window">
-                    <div class="dots"><div class="dot"></div><div class="dot"></div></div>
-                    INPUT CODE<br>
-                    &nbsp;&nbsp;↓<br>
-                    <span class="accent-text">AST PARSER</span> (Structure Analysis)<br>
-                    &nbsp;&nbsp;↓<br>
-                    <span class="purple-text">GEMINI 2.0 AGENTS</span> (Reasoning)<br>
-                    &nbsp;&nbsp;↓<br>
-                    <span style="color:#22c55e">NIST COMPLIANT PATCH</span>
+                <div class="glass-panel">
+                    <div style="font-family: var(--font-code); font-size: 1rem; line-height: 1.8;">
+                        INPUT CODE<br>
+                        &nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;+--> <span class="neon-text">AST PARSER</span> (Structure)<br>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+--> <span class="purple-text">GEMINI 2.0 AGENTS</span><br>
+                        &nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;+--> NIST COMPLIANT PATCH
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="KHADIJA">
-            <div class="stagger-up d1" style="background: rgba(6, 182, 212, 0.1); padding: 20px 40px; border-radius: 100px; color: var(--accent-tertiary); margin-bottom: 2rem;">
-                🚀 LIVE DEMO
-            </div>
-            <h1 class="stagger-up d2">From Vulnerable to<br>Quantum-Proof in Seconds.</h1>
-            <div class="stagger-up d3 code-window" style="margin-top: 2rem; width: 600px;">
-                <div class="dots"><div class="dot green"></div></div>
-                <span class="accent-text">user@quantumguard:~$</span> ./scan --target=./legacy-repo<br>
-                > Initializing Scanner...<br>
-                > Parsing AST... <span style="color:#22c55e">Done (12ms)</span><br>
-                > <span class="danger-text">CRITICAL THREAT: RSA-1024 Found</span><br>
-                > Applying Patch: Kyber-512... <span style="color:#22c55e">SUCCESS</span>
-            </div>
-        </div>
-
-        <div class="slide" data-speaker="SAIF">
-            <h3 class="stagger-up d1">MARKET OPPORTUNITY</h3>
-            <h1 class="stagger-up d2 gradient-text" style="font-size: 8rem;">$3 Billion</h1>
-            <p class="stagger-up d3">Projected PQC Market by 2028</p>
-            <div class="pill-group stagger-up d4" style="margin-top: 3rem;">
-                <div class="pill highlight">Banking</div>
-                <div class="pill highlight">Government</div>
-                <div class="pill highlight">Healthcare</div>
+            <h1 class="reveal d-1">LIVE DEMO</h1>
+            <p class="reveal d-2">From Vulnerable to Quantum-Proof in <span class="neon-text">Seconds</span>.</p>
+            <div class="glass-panel reveal d-3" style="margin-top: 2rem; width: 600px;">
+                <div style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 10px; display: flex; gap: 5px;">
+                    <div style="width: 10px; height: 10px; background: red; border-radius: 50%;"></div>
+                    <div style="width: 10px; height: 10px; background: yellow; border-radius: 50%;"></div>
+                    <div style="width: 10px; height: 10px; background: green; border-radius: 50%;"></div>
+                </div>
+                <div style="font-family: var(--font-code); color: var(--neon-cyan);">
+                    > Initializing Scanner...<br>
+                    > Parsing AST... <span style="color: lime;">Done (0.4ms)</span><br>
+                    > Finding Threats... <span class="danger-text">CRITICAL FOUND</span><br>
+                    > Generating Kyber-512 Patch...
+                </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <h3 class="stagger-up d1">PRODUCTION READY</h3>
-            <h2 class="stagger-up d2">Built for Scale & Reliability</h2>
-            <div class="grid-split stagger-up d3" style="gap: 2rem;">
-                <div class="card" style="padding: 2rem;">
-                    <h3 class="accent-text">CORE</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+            <h3 class="reveal d-1">MARKET OPPORTUNITY</h3>
+            <div class="big-number reveal d-2">$3 Billion</div>
+            <p class="reveal d-3">Post-Quantum Cryptography Market (2028)</p>
+            <div class="team-row reveal d-4">
+                <div class="pill active">Banking</div>
+                <div class="pill active">Government</div>
+                <div class="pill active">Healthcare</div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <h3 class="reveal d-1">PRODUCTION READY STACK</h3>
+            <div class="grid-2 reveal d-2" style="gap: 2rem;">
+                <div class="glass-panel">
+                    <h3 class="neon-text">CORE</h3>
+                    <div class="team-row" style="flex-wrap: wrap; margin-top: 0;">
                         <span class="pill">Node.js</span>
                         <span class="pill">Express</span>
                         <span class="pill">Gemini 2.0</span>
                     </div>
                 </div>
-                <div class="card" style="padding: 2rem;">
+                <div class="glass-panel">
                     <h3 class="purple-text">INTERACTIVITY</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                    <div class="team-row" style="flex-wrap: wrap; margin-top: 0;">
                         <span class="pill">React 18</span>
                         <span class="pill">Framer Motion</span>
                         <span class="pill">Zod</span>
@@ -418,10 +417,10 @@
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <h1 class="stagger-up d1">SECURE THE FUTURE.</h1>
-            <p class="stagger-up d2">Don't let your code become history.</p>
-            <h2 class="stagger-up d3 accent-text" style="margin-top: 3rem; font-size: 2rem; font-weight: 700;">THANK YOU</h2>
-            <div class="stagger-up d4" style="font-family: monospace; color: var(--text-muted); margin-top: 2rem;">
+            <h1 class="reveal d-1">SECURE THE FUTURE.</h1>
+            <p class="reveal d-2">Don't let your code become history.</p>
+            <h2 class="reveal d-3 neon-text" style="margin-top: 3rem;">THANK YOU</h2>
+            <div class="reveal d-4" style="font-family: var(--font-code); margin-top: 2rem; opacity: 0.5;">
                 github.com/SaifullahSayyed/quantum-guard-ai
             </div>
         </div>
@@ -429,10 +428,75 @@
     </div>
 
     <script>
-        /* --- LOGIC --- */
+        // --- BACKGROUND PARTICLE ANIMATION ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 2 + 1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 243, 255, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 80; i++) particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                // Draw connections
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(188, 19, 254, ${1 - dist/150})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
+        // --- SLIDE LOGIC ---
         const slides = document.querySelectorAll('.slide');
         const progressBar = document.getElementById('progress');
-        const badge = document.getElementById('speaker-badge');
+        const speakerName = document.getElementById('speaker-name');
         let current = 0;
 
         function update() {
@@ -440,23 +504,30 @@
                 slide.classList.remove('active');
                 if (idx === current) {
                     slide.classList.add('active');
-                    badge.innerText = "SPEAKER: " + slide.getAttribute('data-speaker');
+                    speakerName.innerText = slide.getAttribute('data-speaker');
                 }
             });
-            const pct = ((current + 1) / slides.length) * 100;
-            progressBar.style.width = pct + '%';
+            progressBar.style.width = ((current + 1) / slides.length * 100) + '%';
         }
 
-        const next = () => { if(current < slides.length - 1) current++; update(); }
-        const prev = () => { if(current > 0) current--; update(); }
-
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
-            if (e.key === 'ArrowLeft') prev();
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (current < slides.length - 1) current++;
+                update();
+            }
+            if (e.key === 'ArrowLeft') {
+                if (current > 0) current--;
+                update();
+            }
         });
 
         document.addEventListener('click', (e) => {
-            if (e.clientX > window.innerWidth / 2) next(); else prev();
+            if (e.clientX > window.innerWidth / 2) {
+                if (current < slides.length - 1) current++;
+            } else {
+                if (current > 0) current--;
+            }
+            update();
         });
 
         update();
