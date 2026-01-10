@@ -5,22 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuantumGuard AI - Team Chai GPT</title>
     <style>
-        /* CORE VARIABLES & RESET */
+        /* --- CORE VARIABLES --- */
         :root {
-            --bg-color: #050505;
+            --bg-dark: #050505;
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --primary: #00f3ff; /* Cyan */
-            --secondary: #bc13fe; /* Purple */
-            --accent: #2d2d2d;
+            --text-muted: #9ca3af;
+            --primary: #06b6d4; /* Cyan-500 */
+            --primary-glow: rgba(6, 182, 212, 0.5);
+            --secondary: #d946ef; /* Fuchsia-500 */
+            --secondary-glow: rgba(217, 70, 239, 0.5);
+            --glass-bg: rgba(20, 20, 25, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-code: 'Fira Code', 'Courier New', monospace;
+            --font-code: 'JetBrains Mono', 'Fira Code', monospace;
         }
 
+        /* --- RESET & BODY --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: var(--font-main);
             overflow: hidden;
@@ -29,360 +33,435 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.08) 0%, transparent 20%);
         }
 
-        /* SLIDE CONTAINER */
+        /* --- DYNAMIC BACKGROUND --- */
+        .background-fx {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at 15% 50%, rgba(6, 182, 212, 0.08), transparent 25%),
+                        radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.08), transparent 25%);
+            filter: blur(40px);
+            animation: pulseBg 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 1; }
+        }
+
+        /* --- SLIDE CONTAINER --- */
         #slide-deck {
             width: 100%;
             height: 100%;
             position: relative;
+            z-index: 1;
+            perspective: 1000px; /* 3D Perspective */
         }
 
         .slide {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            transform: scale(0.95) translateY(20px);
+            transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(30px) scale(0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 4rem;
             text-align: center;
-            z-index: 1;
+            /* Glass Backdrop per slide */
+            backdrop-filter: blur(0px); 
         }
 
         .slide.active {
             opacity: 1;
             visibility: visible;
-            transform: scale(1) translateY(0);
-            z-index: 2;
+            transform: translateY(0) scale(1);
         }
 
-        /* TYPOGRAPHY */
+        /* --- TYPOGRAPHY --- */
         h1 {
-            font-size: 5rem;
+            font-size: 5.5rem;
             font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            margin-bottom: 1.5rem;
+            letter-spacing: -3px;
+            background: linear-gradient(135deg, #fff 40%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(6, 182, 212, 0.2);
         }
 
         h2 {
             font-size: 3.5rem;
+            font-weight: 700;
             margin-bottom: 2rem;
-            color: var(--text-main);
+            letter-spacing: -1px;
         }
 
         h3 {
-            font-size: 2rem;
+            font-size: 1.2rem;
             color: var(--primary);
             text-transform: uppercase;
             letter-spacing: 4px;
             margin-bottom: 1rem;
             font-family: var(--font-code);
+            font-weight: 600;
         }
 
         p {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: var(--text-muted);
-            max-width: 900px;
+            max-width: 1000px;
             line-height: 1.6;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
-        .highlight { color: var(--primary); font-weight: bold; }
-        .highlight-purple { color: var(--secondary); font-weight: bold; }
+        /* --- UI COMPONENTS --- */
         
-        /* SPECIFIC ELEMENTS */
-        .big-stat {
-            font-size: 8rem;
-            font-weight: 900;
-            color: var(--secondary);
-            text-shadow: 0 0 30px rgba(188, 19, 254, 0.5);
-            margin: 1rem 0;
-        }
-
-        .code-block {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 2rem;
-            border-radius: 12px;
-            font-family: var(--font-code);
+        /* Glass Cards */
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(12px);
             text-align: left;
-            font-size: 1.2rem;
-            color: #d4d4d4;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
         }
 
-        .grid-layout {
+        /* Code Block Style */
+        .code-block {
+            font-family: var(--font-code);
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        /* Grid Layout */
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4rem;
             align-items: center;
-            text-align: left;
             width: 100%;
             max-width: 1400px;
         }
 
-        /* TECH STACK ICONS */
-        .tech-pill {
-            display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid var(--primary);
-            color: var(--primary);
+        /* Tech Pills */
+        .pill-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .pill {
+            padding: 10px 24px;
             border-radius: 50px;
-            margin: 5px;
-            font-family: var(--font-code);
-            font-size: 1rem;
-            background: rgba(0, 243, 255, 0.1);
-        }
-
-        /* PROGRESS BAR */
-        .progress-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            z-index: 100;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        /* FOOTER INFO */
-        .footer {
-            position: absolute;
-            bottom: 20px;
-            right: 30px;
             font-family: var(--font-code);
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.3);
-            z-index: 100;
-        }
-
-        .speaker-tag {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 5px 15px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
             color: var(--text-muted);
-            border-left: 3px solid var(--primary);
-            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .pill.active-tech {
+            border-color: var(--primary);
+            color: #fff;
+            background: rgba(6, 182, 212, 0.1);
+            box-shadow: 0 0 15px var(--primary-glow);
         }
 
-        /* UTILS */
-        .hidden { display: none; }
-        .red-alert { color: #ff3333; text-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
-        .blink { animation: blinking 2s infinite; }
+        /* Big Stats */
+        .stat-huge {
+            font-size: 9rem;
+            font-weight: 900;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--secondary);
+            text-shadow: 0 0 30px var(--secondary-glow);
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* --- ANIMATIONS (Staggered Entry) --- */
+        .slide.active .animate-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .slide.active .delay-1 { animation-delay: 0.1s; }
+        .slide.active .delay-2 { animation-delay: 0.3s; }
+        .slide.active .delay-3 { animation-delay: 0.5s; }
+        .slide.active .delay-4 { animation-delay: 0.7s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .red-alert { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
+        .cyan-text { color: var(--primary); }
+        .purple-text { color: var(--secondary); }
         
-        @keyframes blinking {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        /* --- HUD ELEMENTS --- */
+        .hud-top-left {
+            position: absolute;
+            top: 40px; left: 40px;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-left: 2px solid var(--primary);
+            padding-left: 12px;
+            z-index: 10;
+        }
+        .hud-bottom-right {
+            position: absolute;
+            bottom: 30px; right: 40px;
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            z-index: 10;
+        }
+        .progress-line {
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 -2px 10px var(--primary-glow);
+            z-index: 100;
         }
 
     </style>
 </head>
 <body>
 
-    <div class="speaker-tag" id="speaker-name">SPEAKER: SAIF</div>
-    <div class="footer">Team Chai GPT /// TechSprint 2025</div>
-    <div class="progress-container"><div class="progress-bar" id="progress"></div></div>
+    <div class="background-fx"></div>
+
+    <div class="hud-top-left">
+        SPEAKER: <span id="speaker-name" style="color: #fff; font-weight: bold;">SAIF</span>
+    </div>
+    <div class="hud-bottom-right">TEAM CHAI GPT /// TECHSPRINT 2025</div>
+    <div class="progress-line" id="progress"></div>
 
     <div id="slide-deck">
 
         <div class="slide active" data-speaker="SAIF">
-            <h3>TEAM CHAI GPT PRESENTS</h3>
-            <h1>QuantumGuard <span style="color:var(--primary)">AI</span></h1>
-            <p style="font-size: 1.8rem; margin-top: 1rem;">Automated Defense Against the <span class="highlight-purple">Quantum Apocalypse</span></p>
-            <div style="margin-top: 3rem; display: flex; gap: 1rem; justify-content: center;">
-                <span class="tech-pill">Saif</span>
-                <span class="tech-pill">Maseera</span>
-                <span class="tech-pill">Muskan</span>
-                <span class="tech-pill">Khadija</span>
+            <h3 class="animate-up delay-1">TEAM CHAI GPT PRESENTS</h3>
+            <h1 class="animate-up delay-2">QuantumGuard <span class="cyan-text">AI</span></h1>
+            <p class="animate-up delay-3">Automated Defense Against the <span class="purple-text" style="font-weight:700;">Quantum Apocalypse</span></p>
+            
+            <div class="pill-container animate-up delay-4" style="margin-top: 2rem;">
+                <div class="pill active-tech">Saif (Lead)</div>
+                <div class="pill">Maseera</div>
+                <div class="pill">Muskan</div>
+                <div class="pill">Khadija</div>
             </div>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <h2 class="red-alert blink">THE THREAT IS ALREADY HERE</h2>
-            <h1>"Harvest Now, <br>Decrypt Later"</h1>
-            <p>Hackers are stealing encrypted data <strong>today</strong>.<br>Waiting for quantum computers to unlock it <strong>tomorrow</strong>.</p>
+            <h2 class="animate-up delay-1 red-alert">THE THREAT IS INVISIBLE</h2>
+            <h1 class="animate-up delay-2" style="font-size: 6rem;">"Harvest Now,<br>Decrypt Later"</h1>
+            <p class="animate-up delay-3">
+                Hackers are stealing your encrypted data <strong style="color:#fff">today</strong>.<br>
+                Waiting for quantum computers to unlock it <strong style="color:#fff">tomorrow</strong>.
+            </p>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <div class="grid-layout">
-                <div>
-                    <h1 style="font-size: 6rem; color: var(--primary);">Y2Q</h1>
-                    <h3>Year to Quantum</h3>
+            <div class="grid-2">
+                <div style="text-align: right;">
+                    <h1 class="animate-up delay-1 cyan-text" style="font-size: 7rem;">Y2Q</h1>
+                    <h3 class="animate-up delay-2">YEAR TO QUANTUM</h3>
                 </div>
-                <div>
-                    <div class="code-block">
-                        <span style="color: #ff3333;">>> RSA-2048: CRACKED</span><br>
-                        <span style="color: #ff3333;">>> ECC: OBSOLETE</span><br>
-                        <span style="color: #ff3333;">>> GLOBAL TRAFFIC: EXPOSED</span>
+                <div class="glass-card animate-up delay-3">
+                    <div class="code-block" style="border-left-color: #ef4444;">
+                        <span style="color:#ef4444;">>> ANALYSIS: CRITICAL</span><br><br>
+                        [X] RSA-2048 .... BROKEN (Shor's Algo)<br>
+                        [X] ECC ......... OBSOLETE<br>
+                        [X] STATUS ...... <span class="blink">QUANTUM DEBT</span>
                     </div>
-                    <p style="margin-top: 2rem;">Shor's Algorithm will break the internet's foundation.<br>We are running on <strong class="highlight">Quantum Debt</strong>.</p>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="MASEERA">
-            <h3>THE TECHNICAL GAP</h3>
-            <h2>The Solution Exists.<br>The Implementation is <span class="red-alert">Impossible.</span></h2>
-            <div class="grid-layout" style="margin-top: 2rem;">
-                <div style="opacity: 0.6;">
-                    <h3>Legacy Code</h3>
-                    <p>Billions of lines of Node.js & Python using weak MD5 & SHA-1.</p>
-                    <div class="code-block" style="border-color: #ff3333;">crypto.createHash('md5')</div>
+            <h3 class="animate-up delay-1">THE IMPLEMENTATION GAP</h3>
+            <h2 class="animate-up delay-2">The Standard Exists.<br>The Migration is <span class="red-alert">Impossible.</span></h2>
+            
+            <div class="grid-2 animate-up delay-3">
+                <div class="glass-card" style="opacity: 0.6;">
+                    <h3 style="color: #9ca3af;">LEGACY CODE</h3>
+                    <div class="code-block" style="font-size: 0.9rem;">
+                        // Vulnerable Node.js<br>
+                        const hash = crypto<br>
+                        .createHash('<span style="color:#ef4444">md5</span>');
+                    </div>
                 </div>
-                <div>
-                    <h3>NIST Standards (2024)</h3>
-                    <p>Complex Lattice-based Math.</p>
-                    <div class="code-block" style="border-color: var(--primary);">
-                        CRYSTALS-Kyber<br>
-                        CRYSTALS-Dilithium
+                <div class="glass-card" style="border-color: var(--primary);">
+                    <h3 class="cyan-text">NIST 2024 STANDARDS</h3>
+                    <div class="code-block" style="font-size: 0.9rem; border-left-color: var(--primary);">
+                        // Lattice-Based Math<br>
+                        import { <span class="cyan-text">Kyber512</span> } from 'pqc';<br>
+                        import { <span class="cyan-text">Dilithium</span> } from 'ml-dsa';
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="MUSKAN">
-            <h3>INTRODUCING</h3>
-            <h1>QuantumGuard <span style="color:var(--primary)">AI</span></h1>
-            <p>An intelligent security engine that<br>
-            <span class="highlight">Detects</span>, 
-            <span class="highlight">Analyzes</span>, and 
-            <span class="highlight-purple">Remediates</span>.</p>
-            <p style="font-size: 1.2rem; margin-top: 2rem; opacity: 0.8;">Powered by Gemini 2.0 Flash</p>
+            <h3 class="animate-up delay-1">INTRODUCING</h3>
+            <h1 class="animate-up delay-2">QuantumGuard <span class="cyan-text">AI</span></h1>
+            <p class="animate-up delay-3">
+                The Intelligent Engine that<br>
+                <span class="cyan-text" style="font-weight:800">DETECTS</span> &bull; 
+                <span class="cyan-text" style="font-weight:800">ANALYZES</span> &bull; 
+                <span class="purple-text" style="font-weight:800">REMEDIATES</span>
+            </p>
+            <div class="pill animate-up delay-4" style="background: rgba(255,255,255,0.1); margin-top: 1rem;">
+                Powered by Google Gemini 2.0 Flash
+            </div>
         </div>
 
         <div class="slide" data-speaker="MUSKAN">
-            <h3>SYSTEM ARCHITECTURE</h3>
-            <div class="grid-layout">
-                <div style="text-align: center;">
-                    <div class="code-block" style="text-align: center; font-size: 1rem;">
-                        INPUT CODE<br>↓<br>
-                        <strong class="highlight">AST PARSER</strong><br>
-                        (Structure Analysis)<br>↓<br>
-                        <strong class="highlight-purple">GEMINI 2.0 FLASH</strong><br>
-                        (Multi-Agent Pipeline)<br>↓<br>
-                        NIST PATCH
-                    </div>
+            <h3 class="animate-up delay-1">DEEP TECH ARCHITECTURE</h3>
+            <div class="grid-2 animate-up delay-2">
+                <div style="text-align: right;">
+                    <h2 style="font-size: 2.5rem;">We don't just read text.<br>We parse the <span class="purple-text">AST</span>.</h2>
+                    <p style="text-align: right; font-size: 1.2rem;">Abstract Syntax Trees allow us to understand code structure, preventing false positives.</p>
                 </div>
-                <div>
-                    <h2>Deep Tech Stack</h2>
-                    <p>We don't just read text. We parse the <strong class="highlight">Abstract Syntax Tree</strong>.</p>
-                    <div style="margin-top: 2rem;">
-                        <span class="tech-pill">React + ShadCN</span>
-                        <span class="tech-pill">Node.js</span>
-                        <span class="tech-pill">Gemini 2.0</span>
-                        <span class="tech-pill">Recharts</span>
+                <div class="glass-card">
+                    <div class="code-block" style="line-height: 1.8;">
+                        INPUT CODE<br>
+                        &nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;+--> <strong class="cyan-text">AST PARSER</strong> (Structure)<br>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+--> <strong class="purple-text">GEMINI 2.0</strong> (Agents)<br>
+                        &nbsp;&nbsp;|<br>
+                        &nbsp;&nbsp;+--> NIST COMPLIANT PATCH
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="KHADIJA">
-            <h1>LIVE DEMO</h1>
-            <p>From Vulnerable to Quantum-Proof in <span class="highlight">Seconds</span>.</p>
-            <div style="margin-top: 3rem;">
-                <div class="blink" style="font-family: var(--font-code); color: var(--primary);">>> INITIALIZING SCANNER...</div>
+            <h1 class="animate-up delay-1">LIVE DEMO</h1>
+            <p class="animate-up delay-2">From Vulnerable to Quantum-Proof in <span class="cyan-text">Seconds</span>.</p>
+            <div class="animate-up delay-3" style="margin-top: 3rem;">
+                <div class="code-block" style="display: inline-block;">
+                    <span class="blink cyan-text">>> INITIALIZING SCANNER...</span>
+                </div>
             </div>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <h3>MARKET IMPACT</h3>
-            <div class="big-stat">$3 Billion</div>
-            <p>Projected Post-Quantum Cryptography Market by 2028.</p>
-            <div style="margin-top: 2rem; display: flex; gap: 2rem; justify-content: center; opacity: 0.7;">
-                <span>🏛️ Government Compliance</span>
-                <span>🏦 Banking Security</span>
-                <span>🏥 Healthcare Privacy</span>
+            <h3 class="animate-up delay-1">MARKET OPPORTUNITY</h3>
+            <div class="stat-huge animate-up delay-2">$3 Billion</div>
+            <p class="animate-up delay-3">Projected Post-Quantum Cryptography Market (2028)</p>
+            <div class="pill-container animate-up delay-4" style="margin-top: 2rem;">
+                <div class="pill">🏦 Banking</div>
+                <div class="pill">🏛️ Government</div>
+                <div class="pill">🏥 Healthcare</div>
             </div>
         </div>
 
         <div class="slide" data-speaker="SAIF">
-            <h1>SECURE THE FUTURE.</h1>
-            <p>Don't let your code become history.</p>
-            <h2 style="margin-top: 3rem; font-size: 2.5rem; color: var(--primary);">Thank You</h2>
-            <p style="font-size: 1rem; margin-top: 1rem;">Team Chai GPT</p>
+            <h3 class="animate-up delay-1">PRODUCTION READY STACK</h3>
+            <h2 class="animate-up delay-2">Built for Scale & Reliability</h2>
+            
+            <div class="grid-2 animate-up delay-3" style="gap: 2rem;">
+                <div class="glass-card">
+                    <h3 class="cyan-text" style="font-size: 1rem;">CORE & PERFORMANCE</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                        <span class="pill active-tech">Node.js</span>
+                        <span class="pill active-tech">Express</span>
+                        <span class="pill active-tech">Gemini 2.0 Flash</span>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3 class="purple-text" style="font-size: 1rem;">INTERACTIVITY & SAFETY</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                        <span class="pill active-tech">React 18</span>
+                        <span class="pill active-tech">Framer Motion</span>
+                        <span class="pill active-tech">Zod Validation</span>
+                        <span class="pill active-tech">TanStack Query</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide" data-speaker="SAIF">
+            <h1 class="animate-up delay-1">SECURE THE FUTURE.</h1>
+            <p class="animate-up delay-2">Don't let your code become history.</p>
+            
+            <h2 class="animate-up delay-3" style="margin-top: 4rem; color: var(--primary);">Thank You</h2>
+            <div class="animate-up delay-4" style="font-family: var(--font-code); color: var(--text-muted);">
+                github.com/SaifullahSayyed/quantum-guard-ai
+            </div>
         </div>
 
     </div>
 
     <script>
-        // PRESENTATION LOGIC
+        // LOGIC
         const slides = document.querySelectorAll('.slide');
         const progressBar = document.getElementById('progress');
         const speakerTag = document.getElementById('speaker-name');
-        let currentSlide = 0;
+        let currentIndex = 0;
 
         function updateSlide() {
             slides.forEach((slide, index) => {
                 slide.classList.remove('active');
-                if (index === currentSlide) {
+                if (index === currentIndex) {
                     slide.classList.add('active');
-                    // Update Speaker Name
-                    speakerTag.innerText = "SPEAKER: " + slide.getAttribute('data-speaker');
+                    speakerTag.innerText = slide.getAttribute('data-speaker');
                 }
             });
-            // Update Progress Bar
-            const progress = ((currentSlide + 1) / slides.length) * 100;
-            progressBar.style.width = progress + '%';
+            // Update Progress
+            const pct = ((currentIndex + 1) / slides.length) * 100;
+            progressBar.style.width = pct + '%';
         }
 
-        function nextSlide() {
-            if (currentSlide < slides.length - 1) {
-                currentSlide++;
+        function next() {
+            if (currentIndex < slides.length - 1) {
+                currentIndex++;
                 updateSlide();
             }
         }
 
-        function prevSlide() {
-            if (currentSlide > 0) {
-                currentSlide--;
+        function prev() {
+            if (currentIndex > 0) {
+                currentIndex--;
                 updateSlide();
             }
         }
 
-        // Event Listeners
+        // CONTROLS
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
+            if(['ArrowRight', ' ', 'Enter'].includes(e.key)) next();
+            if(e.key === 'ArrowLeft') prev();
         });
 
         document.addEventListener('click', (e) => {
-            // Click right side to go next, left side to go back
-            if (e.clientX < window.innerWidth / 3) {
-                prevSlide();
-            } else {
-                nextSlide();
-            }
+            if(e.clientX > window.innerWidth / 3) next();
+            else prev();
         });
 
-        // Initialize
+        // INIT
         updateSlide();
     </script>
 </body>
